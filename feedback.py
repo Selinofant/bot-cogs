@@ -2,9 +2,9 @@ import discord
 from discord.ext import commands
 from discord.commands import slash_command
 from discord.commands import Option
-import json
+import json #nicht nötig, wenn channel nicht über json gespeichert sind
 
-with open("Channel.json") as channel:
+with open("Channel.json") as channel:#nur, wenn channel in json gespeichert werden
     channel = json.load(channel)
 
 feedback = channel["feedback"] #hier kommt die channel-ID des channels hin, in den Feedback/Beschwerden/Vorschläge gesendet werdn sollen
@@ -14,10 +14,12 @@ voting = channel["vorschläge"] #hier kommt die forums-ID hin, wo die Vorschläg
 class Feedback(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
+        
+#slash-command mit 3 verschiedenen Optionen, aus denen der User auswählt
     @slash_command(description="Gib Feedback, reiche einen Vorschlag/Beschwerde ein")
     async def feedback(self, ctx, art:Option(str, choices=["Feedback", "Vorschlag", "Beschwerde"])):
 
+#Unterscheidung nach Feedback, Vorschlag und Beschwerde
         if art == "Feedback":
             modal = FeedbackModal(title="Teile dein Feedback")
             await ctx.send_modal(modal)
@@ -27,10 +29,11 @@ class Feedback(commands.Cog):
             await ctx.send_modal(modal)
 
         if art == "Beschwerde":
-            modal = BeschwerdeModal(title="Reiche eine Beeschwerde ein")
+            modal = BeschwerdeModal(title="Reiche eine Beschwerde ein")
             await ctx.send_modal(modal)
 
 
+#Modal für Feedback
 class FeedbackModal(discord.ui.Modal):
     def __init__(self, *args, **kwargs):
         super().__init__(
@@ -64,6 +67,7 @@ class FeedbackModal(discord.ui.Modal):
         await channel.send(embed=embed)
 
 
+#Modal für Vorschläge
 class VorschlagModal(discord.ui.Modal):
     def __init__(self, *args, **kwargs):
         super().__init__(
@@ -107,6 +111,7 @@ class VorschlagModal(discord.ui.Modal):
         await interaction.response.send_message("Alles klar, wir haben deinen Vorschlag erhalten", ephemeral=True)
 
 
+#Modal für Beschwerden  
 class BeschwerdeModal(discord.ui.Modal):
     def __init__(self, *args, **kwargs):
         super().__init__(
@@ -148,7 +153,7 @@ class BeschwerdeModal(discord.ui.Modal):
         await interaction.response.send_message("Alles klar, wir haben deine Beschwerde erhalten", ephemeral=True)
         await channel.send(embed=embed)
 
-
+#Cog-Einbindung
 def setup(bot):
     bot.add_cog(Feedback(bot))
 
